@@ -504,12 +504,27 @@ async function enviar() {
     var clientName = _get('nome') || 'client';
     var fileName = 'LegalWay_EB2NIW_' + clientName.replace(/\s+/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
     var opt = {
-      margin:[8,8,8,8], filename:fileName,
+      margin:[10,10,10,10], filename:fileName,
       image:{type:'jpeg',quality:0.95},
-      html2canvas:{scale:2,useCORS:true,backgroundColor:'#09152a'},
-      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+      html2canvas:{
+        scale:1.5,
+        useCORS:true,
+        backgroundColor:'#09152a',
+        windowWidth:900,
+        scrollY:0,
+        logging:false
+      },
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+      pagebreak:{mode:'avoid-all'}
     };
-    await html2pdf().set(opt).from(document.getElementById('wrap')).save();
+
+    // Only capture the contract body, not the full page
+    var contractEl = document.getElementById('wrap');
+    contractEl.style.maxWidth = '900px';
+    contractEl.style.margin = '0';
+    await html2pdf().set(opt).from(contractEl).save();
+    contractEl.style.maxWidth = '';
+    contractEl.style.margin = '';
 
     sigImg.parentNode.replaceChild(canvas, sigImg);
     document.querySelector('.submit-wrap').style.display = '';
