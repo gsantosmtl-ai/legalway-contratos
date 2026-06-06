@@ -140,24 +140,75 @@
 
 <style id="print-css">
 @media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
   body { background: #ffffff !important; }
   body::before { display: none !important; }
   .submit-wrap, .success, .err { display: none !important; }
-  .wrap { padding: 10px !important; max-width: 100% !important; }
-  .hdr { background: #0a1628 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .body { border: 1px solid #ccc !important; }
-  .sec { padding: 16px 24px !important; border-bottom: 1px solid #ddd !important; }
-  .sec-title { color: #0a1628 !important; }
-  .sec-text { color: #333 !important; }
-  .callout { border-left: 3px solid #c9a84c !important; background: #faf6ee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .pay-block { border: 1px solid #ddd !important; margin-bottom: 8px !important; }
-  .pay-block-head { background: #f5f0e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .total-box { background: #f5f0e8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .info-item { background: #f9f9f9 !important; border: 1px solid #eee !important; }
-  canvas { display: none !important; }
-  .sig-img-print { display: block !important; width: 100% !important; height: 80px !important; border: 1px solid #c9a84c !important; }
-  .foot { border-top: 1px solid #ccc !important; color: #666 !important; }
-  .agree-wrap { border: 1px solid #ddd !important; }
+  .wrap { padding: 0 !important; max-width: 100% !important; }
+
+  /* HEADER */
+  .hdr { background: #09152a !important; padding: 32px 40px 28px !important; }
+  .hdr::before { height: 3px !important; background: #c9a84c !important; }
+  .hdr-eyebrow { color: #c9a84c !important; }
+  .hdr-title { color: #ffffff !important; }
+  .hdr-sub { color: #aaaaaa !important; }
+  .logo-ring { border-color: #c9a84c !important; color: #c9a84c !important; }
+  .logo-name { color: #ffffff !important; }
+  .logo-name span { color: #c9a84c !important; }
+
+  /* BODY */
+  .body { border: 1px solid #cccccc !important; }
+  .sec { padding: 20px 32px !important; border-bottom: 1px solid #dddddd !important; }
+  .sec-num { color: #c9a84c !important; }
+  .sec-line { background: #c9a84c !important; opacity: 1 !important; }
+  .sec-title { color: #0a1628 !important; font-size: 18px !important; }
+  .sec-text { color: #222222 !important; }
+  .sec-text strong { color: #0a1628 !important; }
+  .sec-text p { color: #222222 !important; }
+
+  /* CALLOUT */
+  .callout { background: #fdf8ee !important; border: 1px solid #c9a84c !important; border-left: 4px solid #c9a84c !important; }
+  .callout p { color: #222222 !important; }
+  .callout strong { color: #0a1628 !important; }
+
+  /* LISTS */
+  ul.cl li { color: #222222 !important; }
+  ul.cl li::before { color: #c9a84c !important; }
+
+  /* PAYMENT */
+  .pay-block { border: 1px solid #cccccc !important; margin-bottom: 10px !important; }
+  .pay-block-head { background: #f5f0e8 !important; padding: 10px 18px !important; }
+  .pay-block-tag { color: #9a7830 !important; font-weight: 600 !important; }
+  .pay-row { border-bottom: 1px solid #eeeeee !important; padding: 10px 18px !important; }
+  .pay-row-label { color: #555555 !important; }
+  .pay-row-value { color: #0a1628 !important; font-size: 16px !important; }
+  .pay-row-value.accent { color: #9a7830 !important; font-size: 20px !important; }
+  .parcelas-table th { color: #9a7830 !important; font-weight: 600 !important; border-bottom: 1px solid #cccccc !important; }
+  .parcelas-table td { color: #222222 !important; border-bottom: 1px solid #eeeeee !important; }
+  .total-box { background: #f5f0e8 !important; border: 1px solid #c9a84c !important; padding: 14px 20px !important; }
+  .total-label { color: #9a7830 !important; font-weight: 600 !important; }
+  .total-value { color: #9a7830 !important; font-size: 26px !important; }
+
+  /* CLIENT INFO */
+  .client-grid { gap: 10px !important; }
+  .info-item { background: #f9f9f9 !important; border: 1px solid #dddddd !important; padding: 12px 16px !important; }
+  .info-lbl { color: #9a7830 !important; font-weight: 600 !important; }
+  .info-val { color: #0a1628 !important; font-size: 15px !important; font-weight: 400 !important; }
+  .info-val.empty { color: #999999 !important; }
+
+  /* SIGNATURE */
+  .agree-wrap { border: 1px solid #dddddd !important; background: #f9f9f9 !important; }
+  .agree-text { color: #333333 !important; }
+  .chk { border: 1.5px solid #c9a84c !important; }
+  .agree-wrap.active .chk::after { color: #c9a84c !important; }
+  canvas { border: 1px solid #c9a84c !important; }
+  .sig-lbl { color: #9a7830 !important; font-weight: 600 !important; }
+  .sig-hint { color: #888888 !important; }
+  #sign-date, #sign-city { color: #0a1628 !important; font-size: 15px !important; }
+  .info-lbl[style] { color: #9a7830 !important; }
+
+  /* FOOTER */
+  .foot { border: 1px solid #dddddd !important; border-top: 1px solid #cccccc !important; color: #555555 !important; }
 }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
@@ -172,7 +223,14 @@
     </div>
     <div class="hdr-eyebrow">EB-2/NIW Services Agreement</div>
     <div class="hdr-title">EB-2 National Interest Waiver</div>
-    <div class="hdr-sub">Windermere, Florida &nbsp;·&nbsp; legalway.group</div>
+    <div class="hdr-sub">Windermere, Florida &nbsp;·&nbsp; legalwayservices.com</div>
+    <div style="margin-top:12px;display:flex;flex-wrap:wrap;justify-content:center;gap:16px;font-size:11px;color:var(--muted);letter-spacing:1px;">
+      <span>✉ contato@legalway.group</span>
+      <span>·</span>
+      <span>📱 (689) 312 0885</span>
+      <span>·</span>
+      <span>📍 9100 Conroy Windermere Rd., Suite 200, Office 286, Windermere, FL 34786</span>
+    </div>
   </div>
 
   <div class="body">
@@ -358,7 +416,7 @@
     <div class="err" id="errMsg"></div>
   </div>
 
-  <div class="foot">LEGALWAY GROUP &nbsp;·&nbsp; WINDERMERE, FLORIDA &nbsp;·&nbsp; legalway.group &nbsp;·&nbsp; peterson.financeiro@legalway.group</div>
+  <div class="foot">LEGALWAY GROUP &nbsp;·&nbsp; 9100 Conroy Windermere Rd., Suite 200, Office 286, Windermere, FL 34786 &nbsp;·&nbsp; (689) 312 0885 &nbsp;·&nbsp; contato@legalway.group</div>
 
 </div><!-- /wrap -->
 
