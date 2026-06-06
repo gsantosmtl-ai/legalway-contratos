@@ -394,6 +394,7 @@ document.getElementById('sign-date').textContent =
   new Date().toLocaleDateString('en-US', { day:'2-digit', month:'long', year:'numeric' });
 
 // ─── PAYMENT SECTION ─────────────────────────────────
+document.addEventListener("DOMContentLoaded", function(){
 (function buildPayment() {
   const metodo       = g('metodo');
   const entradaTotal = g('entrada_total');
@@ -475,6 +476,7 @@ document.getElementById('sign-date').textContent =
 
   wrap.innerHTML = html || '<p style="font-size:14px;color:var(--muted)">Condições de pagamento não informadas.</p>';
 })();
+}); // end DOMContentLoaded payment
 
 // ─── AGREE ───────────────────────────────────────────
 let agreed = false;
