@@ -1,11 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EB-2/NIW Services Agreement | LegalWay Group</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
+
   :root{
     --navy:#09152a;--navy-mid:#0f1f3d;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:#9a7830;
     --white:#fff;--off-white:#f0ead8;--text:#ccc8be;--muted:#7a8fa8;
@@ -133,20 +135,11 @@
     .hdr-title{font-size:28px}
     .pay-row{flex-direction:column;gap:4px}
   }
+
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script>
-// Inline param reader - runs immediately
-(function(){
-  try {
-    var params = new URLSearchParams(window.location.search);
-    window._cp = function(k){ var v=params.get(k); return v?decodeURIComponent(v):''; };
-  } catch(e){}
-})();
-</script>
 </head>
 <body>
-<div class="wrap">
+<div class="wrap" id="wrap">
 
   <div class="hdr">
     <div class="logo">
@@ -159,6 +152,7 @@
   </div>
 
   <div class="body">
+
 
     <div class="sec">
       <div class="sec-lbl"><span class="sec-num">01</span><div class="sec-line"></div></div>
@@ -328,6 +322,7 @@
       </div>
     </div>
 
+  
   </div><!-- /body -->
 
   <div class="submit-wrap">
@@ -350,256 +345,201 @@
 </div>
 
 <script>
-const p = new URLSearchParams(window.location.search);
-
-// ─── HELPERS ─────────────────────────────────────────
-function g(key) { return p.get(key) ? decodeURIComponent(p.get(key)) : null; }
-
-function fillInfo(id, key) {
-  const el = document.getElementById(id);
-  const v = g(key);
-  el.textContent = v || '—';
-  if (!v) el.classList.add('empty');
+// ─── READ URL PARAMS ─────────────────────────────────
+var _params = new URLSearchParams(window.location.search);
+function _get(key) {
+  var val = _params.get(key);
+  return val ? decodeURIComponent(val.replace(/\+/g, ' ')) : null;
 }
 
-function fmtUSD(str) {
-  if (!str) return '—';
-  return 'USD ' + str;
+// ─── FILL CLIENT INFO ────────────────────────────────
+function fillField(id, key) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var val = _get(key);
+  if (val) {
+    el.textContent = val;
+    el.classList.remove('empty');
+  } else {
+    el.textContent = '—';
+    el.classList.add('empty');
+  }
 }
 
-// ─── CLIENT INFO ──────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function() {
-  ['nome','email','telefone','passaporte','nacionalidade','endereco'].forEach(k => fillInfo('ci-' + k, k));
-  const cidade = g('cidade');
-  if (cidade) document.getElementById('sign-city').textContent = cidade;
-  
-  // Force fill with direct DOM manipulation as backup
-  const nome = p.get('nome');
-  const email = p.get('email');
-  const telefone = p.get('telefone');
-  const passaporte = p.get('passaporte');
-  const nacionalidade = p.get('nacionalidade');
-  const endereco = p.get('endereco');
-  
-  if (nome) document.getElementById('ci-nome').textContent = decodeURIComponent(nome);
-  if (email) document.getElementById('ci-email').textContent = decodeURIComponent(email);
-  if (telefone) document.getElementById('ci-telefone').textContent = decodeURIComponent(telefone);
-  if (passaporte) document.getElementById('ci-passaporte').textContent = decodeURIComponent(passaporte);
-  if (nacionalidade) document.getElementById('ci-nacionalidade').textContent = decodeURIComponent(nacionalidade);
-  if (endereco) document.getElementById('ci-endereco').textContent = decodeURIComponent(endereco);
-});
+// ─── BUILD PAYMENT SECTION ───────────────────────────
+function buildPayment() {
+  var metodo       = _get('metodo');
+  var entradaTotal = _get('entrada_total');
+  var entradaTipo  = _get('entrada_tipo') || 'avista';
+  var entradaData  = _get('entrada_data');
+  var parcelasRaw  = _get('entrada_parcelas');
+  var parcNum      = _get('parc_num');
+  var parcValor    = _get('parc_valor');
+  var parcInicio   = _get('parc_inicio');
 
-// ─── DATE ─────────────────────────────────────────────
-document.getElementById('sign-date').textContent =
-  new Date().toLocaleDateString('en-US', { day:'2-digit', month:'long', year:'numeric' });
+  var wrap = document.getElementById('paySection');
+  if (!wrap) return;
+  var html = '';
 
-// ─── PAYMENT SECTION ─────────────────────────────────
-document.addEventListener("DOMContentLoaded", function(){
-(function buildPayment() {
-  const metodo       = g('metodo');
-  const entradaTotal = g('entrada_total');
-  const entradaTipo  = g('entrada_tipo') || 'avista';
-  const entradaData  = g('entrada_data');
-  const parcelasRaw  = g('entrada_parcelas');
-  const parcNum      = g('parc_num');
-  const parcValor    = g('parc_valor');
-  const parcInicio   = g('parc_inicio');
-
-  const wrap = document.getElementById('paySection');
-  let html = '';
-
-  // ── MÉTODO ──
   if (metodo) {
-    html += `
-      <div class="pay-block">
-        <div class="pay-block-head"><span class="pay-block-tag">Payment Method</span></div>
-        <div class="pay-row">
-          <span class="pay-row-label">Payment method</span>
-          <span class="pay-row-value">${metodo}</span>
-        </div>
-      </div>`;
+    html += '<div class="pay-block"><div class="pay-block-head"><span class="pay-block-tag">Payment Method</span></div>';
+    html += '<div class="pay-row"><span class="pay-row-label">Payment method</span><span class="pay-row-value">' + metodo + '</span></div></div>';
   }
 
-  // ── ENTRADA ──
   if (entradaTotal) {
-    html += `<div class="pay-block"><div class="pay-block-head"><span class="pay-block-tag">Down Payment</span></div>`;
-    html += `<div class="pay-row"><span class="pay-row-label">Down Payment Amount</span><span class="pay-row-value accent">${fmtUSD(entradaTotal)}</span></div>`;
-
-    if (entradaTipo === 'avista') {
-      if (entradaData) {
-        html += `<div class="pay-row"><span class="pay-row-label">Payment Date</span><span class="pay-row-value">${entradaData}</span></div>`;
-      }
+    html += '<div class="pay-block"><div class="pay-block-head"><span class="pay-block-tag">Down Payment</span></div>';
+    html += '<div class="pay-row"><span class="pay-row-label">Down Payment Amount</span><span class="pay-row-value accent">USD ' + entradaTotal + '</span></div>';
+    if (entradaTipo === 'avista' && entradaData) {
+      html += '<div class="pay-row"><span class="pay-row-label">Payment Date</span><span class="pay-row-value">' + entradaData + '</span></div>';
     } else if (parcelasRaw) {
-      // parcelada
       try {
-        const parcelas = JSON.parse(parcelasRaw);
-        html += `<table class="parcelas-table">
-          <thead><tr><th>#</th><th>Amount</th><th>Due Date</th></tr></thead>
-          <tbody>`;
-        parcelas.forEach((px, i) => {
-          html += `<tr>
-            <td>${i + 1}ª</td>
-            <td>${fmtUSD(px.v)}</td>
-            <td>${px.d || '—'}</td>
-          </tr>`;
+        var parcelas = JSON.parse(parcelasRaw);
+        html += '<table class="parcelas-table"><thead><tr><th>#</th><th>Amount</th><th>Due Date</th></tr></thead><tbody>';
+        parcelas.forEach(function(px, i) {
+          html += '<tr><td>' + (i+1) + '.</td><td>USD ' + px.v + '</td><td>' + (px.d||'—') + '</td></tr>';
         });
-        html += `</tbody></table>`;
+        html += '</tbody></table>';
       } catch(e) {}
     }
-    html += `</div>`;
+    html += '</div>';
   }
 
-  // ── RESTANTE ──
   if (parcNum && parcValor) {
-    html += `<div class="pay-block"><div class="pay-block-head"><span class="pay-block-tag">Monthly Installments — Remaining Balance</span></div>`;
-    html += `<div class="pay-row"><span class="pay-row-label">Number of Installments</span><span class="pay-row-value">${parcNum}×</span></div>`;
-    html += `<div class="pay-row"><span class="pay-row-label">Amount per Installment</span><span class="pay-row-value accent">${fmtUSD(parcValor)}</span></div>`;
+    html += '<div class="pay-block"><div class="pay-block-head"><span class="pay-block-tag">Monthly Installments — Remaining Balance</span></div>';
+    html += '<div class="pay-row"><span class="pay-row-label">Number of Installments</span><span class="pay-row-value">' + parcNum + '×</span></div>';
+    html += '<div class="pay-row"><span class="pay-row-label">Amount per Installment</span><span class="pay-row-value accent">USD ' + parcValor + '</span></div>';
     if (parcInicio) {
-      html += `<div class="pay-row"><span class="pay-row-label">First Installment Date</span><span class="pay-row-value">${parcInicio}</span></div>`;
-      html += `<div class="pay-row"><span class="pay-row-label">Subsequent installments due monthly</span><span class="pay-row-value" style="font-size:13px;color:var(--muted)">on the same date each following month</span></div>`;
+      html += '<div class="pay-row"><span class="pay-row-label">First Installment Date</span><span class="pay-row-value">' + parcInicio + '</span></div>';
+      html += '<div class="pay-row"><span class="pay-row-label">Subsequent installments due monthly</span><span class="pay-row-value" style="font-size:13px;color:var(--muted)">on the same date each following month</span></div>';
     }
-    html += `</div>`;
+    html += '</div>';
   }
 
-  // ── TOTAL ──
-  const ent  = parseFloat((entradaTotal||'0').replace(/,/g,'')) || 0;
-  const pv   = parseFloat((parcValor||'0').replace(/,/g,'')) || 0;
-  const pn   = parseInt(parcNum||'0') || 0;
+  var ent = parseFloat((entradaTotal||'0').replace(/,/g,'')) || 0;
+  var pv  = parseFloat((parcValor||'0').replace(/,/g,'')) || 0;
+  var pn  = parseInt(parcNum||'0') || 0;
   if (ent > 0 || pv > 0) {
-    const total = ent + (pv * pn);
-    const fmt = 'USD ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    html += `<div class="total-box">
-      <span class="total-label">Total Contract Value</span>
-      <span class="total-value">${fmt}</span>
-    </div>`;
+    var total = ent + (pv * pn);
+    var fmt = 'USD ' + total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    html += '<div class="total-box"><span class="total-label">Total Contract Value</span><span class="total-value">' + fmt + '</span></div>';
   }
 
-  wrap.innerHTML = html || '<p style="font-size:14px;color:var(--muted)">Condições de pagamento não informadas.</p>';
-})();
-}); // end DOMContentLoaded payment
+  wrap.innerHTML = html || '<p style="font-size:14px;color:var(--muted)">Payment conditions not specified.</p>';
+}
+
+// ─── INIT ────────────────────────────────────────────
+window.onload = function() {
+  fillField('ci-nome',         'nome');
+  fillField('ci-email',        'email');
+  fillField('ci-telefone',     'telefone');
+  fillField('ci-passaporte',   'passaporte');
+  fillField('ci-nacionalidade','nacionalidade');
+  fillField('ci-endereco',     'endereco');
+
+  var cidade = _get('cidade');
+  if (cidade) {
+    var sc = document.getElementById('sign-city');
+    if (sc) sc.textContent = cidade;
+  }
+
+  document.getElementById('sign-date').textContent =
+    new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'});
+
+  buildPayment();
+};
 
 // ─── AGREE ───────────────────────────────────────────
-let agreed = false;
+var agreed = false;
 function toggleAgree() {
   agreed = !agreed;
   document.getElementById('agreeWrap').classList.toggle('active', agreed);
 }
 
 // ─── CANVAS ──────────────────────────────────────────
-const canvas = document.getElementById('sig');
-const ctx = canvas.getContext('2d');
-let drawing = false, hasSig = false;
-ctx.strokeStyle = '#c9a84c'; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+var canvas, ctx, drawing = false, hasSig = false;
+window.addEventListener('load', function() {
+  canvas = document.getElementById('sig');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#c9a84c'; ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
-function pos(e) {
-  const r = canvas.getBoundingClientRect();
-  const sx = canvas.width / r.width, sy = canvas.height / r.height;
-  const s = e.touches ? e.touches[0] : e;
-  return { x: (s.clientX - r.left) * sx, y: (s.clientY - r.top) * sy };
-}
-canvas.addEventListener('mousedown',  e => { drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-canvas.addEventListener('mousemove',  e => { if(!drawing)return; hasSig=true; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x,p.y); });
-canvas.addEventListener('mouseup',    () => drawing=false);
-canvas.addEventListener('mouseleave', () => drawing=false);
-canvas.addEventListener('touchstart', e => { e.preventDefault(); drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); },{passive:false});
-canvas.addEventListener('touchmove',  e => { e.preventDefault(); if(!drawing)return; hasSig=true; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x,p.y); },{passive:false});
-canvas.addEventListener('touchend',   () => drawing=false);
-function clearSig(){ ctx.clearRect(0,0,canvas.width,canvas.height); hasSig=false; }
+  function pos(e) {
+    var r = canvas.getBoundingClientRect();
+    var sx = canvas.width/r.width, sy = canvas.height/r.height;
+    var s = e.touches ? e.touches[0] : e;
+    return {x:(s.clientX-r.left)*sx, y:(s.clientY-r.top)*sy};
+  }
+  canvas.addEventListener('mousedown',  function(e){drawing=true;var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);});
+  canvas.addEventListener('mousemove',  function(e){if(!drawing)return;hasSig=true;var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.beginPath();ctx.moveTo(p.x,p.y);});
+  canvas.addEventListener('mouseup',    function(){drawing=false;});
+  canvas.addEventListener('mouseleave', function(){drawing=false;});
+  canvas.addEventListener('touchstart', function(e){e.preventDefault();drawing=true;var p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
+  canvas.addEventListener('touchmove',  function(e){e.preventDefault();if(!drawing)return;hasSig=true;var p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.beginPath();ctx.moveTo(p.x,p.y);},{passive:false});
+  canvas.addEventListener('touchend',   function(){drawing=false;});
+});
+
+function clearSig(){ if(ctx)ctx.clearRect(0,0,canvas.width,canvas.height); hasSig=false; }
 
 // ─── SUBMIT ──────────────────────────────────────────
-function showErr(msg){ const e=document.getElementById('errMsg'); e.textContent=msg; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),5000); }
+function showErr(msg){var e=document.getElementById('errMsg');e.textContent=msg;e.classList.add('on');setTimeout(function(){e.classList.remove('on');},5000);}
 
 async function enviar() {
   if (!agreed) return showErr('You must accept the terms of this Agreement.');
   if (!hasSig)  return showErr('Please provide your signature in the field above.');
 
-  const btn = document.getElementById('submitBtn');
+  var btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.innerHTML = '⏳ &nbsp;Generating PDF & Sending...';
+  btn.innerHTML = '⏳ &nbsp;Sending...';
 
-  const sigData = canvas.toDataURL('image/png');
+  var sigData = canvas.toDataURL('image/png');
 
-  // ─── STEP 1: Generate PDF ───────────────────────────
-  // Replace canvas with image for PDF rendering
-  const sigImg = document.createElement('img');
-  sigImg.src = sigData;
-  sigImg.style.cssText = 'width:100%;height:160px;border:1px solid rgba(201,168,76,0.5);display:block;';
-  canvas.parentNode.replaceChild(sigImg, canvas);
-
-  // Hide submit section for PDF
-  document.querySelector('.submit-wrap').style.display = 'none';
-  document.getElementById('successBox').style.display = 'none';
-
-  const element = document.querySelector('.wrap');
-  const clientName = g('nome') || 'client';
-  const fileName = `LegalWay_EB2NIW_${clientName.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.pdf`;
-
-  const opt = {
-    margin: [8, 8, 8, 8],
-    filename: fileName,
-    image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: '#09152a',
-      logging: false,
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-  };
-
-  let pdfBlob;
+  // Generate PDF
   try {
-    pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
-    // Also trigger download for client
-    html2pdf().set(opt).from(element).save();
-  } catch(err) {
-    console.error('PDF error:', err);
-  }
+    var sigImg = document.createElement('img');
+    sigImg.src = sigData;
+    sigImg.style.cssText = 'width:100%;height:160px;border:1px solid rgba(201,168,76,0.5);display:block;';
+    canvas.parentNode.replaceChild(sigImg, canvas);
+    document.querySelector('.submit-wrap').style.display = 'none';
 
-  // Restore canvas
-  sigImg.parentNode.replaceChild(canvas, sigImg);
-  document.querySelector('.submit-wrap').style.display = '';
+    var clientName = _get('nome') || 'client';
+    var fileName = 'LegalWay_EB2NIW_' + clientName.replace(/\s+/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+    var opt = {
+      margin:[8,8,8,8], filename:fileName,
+      image:{type:'jpeg',quality:0.95},
+      html2canvas:{scale:2,useCORS:true,backgroundColor:'#09152a'},
+      jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
+    };
+    await html2pdf().set(opt).from(document.getElementById('wrap')).save();
 
-  // ─── STEP 2: Send to Jotform ────────────────────────
-  const FORM_ID = '261565529626062';
-  const API_KEY = '767f2d3c1c55a7c47aba63accdb2f95f';
+    sigImg.parentNode.replaceChild(canvas, sigImg);
+    document.querySelector('.submit-wrap').style.display = '';
+  } catch(e) { console.error('PDF error:', e); }
 
-  const fd = new FormData();
-  fd.append('submission[5]',  g('nome') || '');
-  fd.append('submission[6]',  g('email') || '');
-  fd.append('submission[7]',  g('telefone') || '');
-  fd.append('submission[22]', g('passaporte') || '');
-  fd.append('submission[10]', g('nacionalidade') || '');
-  fd.append('submission[11]', g('endereco') || '');
-  fd.append('submission[12]', g('metodo') || '');
-  fd.append('submission[13]', g('entrada_total') || '');
-  fd.append('submission[14]', g('entrada_tipo') || '');
-  fd.append('submission[19]', g('entrada_data') || g('entrada_parcelas') || '');
-  fd.append('submission[16]', g('parc_num') || '');
-  fd.append('submission[17]', g('parc_valor') || '');
-  fd.append('submission[18]', g('parc_inicio') || '');
+  // Send to Jotform
+  var FORM_ID = '261565529626062';
+  var API_KEY = '767f2d3c1c55a7c47aba63accdb2f95f';
+  var fd = new FormData();
+  fd.append('submission[5]',  _get('nome') || '');
+  fd.append('submission[6]',  _get('email') || '');
+  fd.append('submission[7]',  _get('telefone') || '');
+  fd.append('submission[22]', _get('passaporte') || '');
+  fd.append('submission[10]', _get('nacionalidade') || '');
+  fd.append('submission[11]', _get('endereco') || '');
+  fd.append('submission[12]', _get('metodo') || '');
+  fd.append('submission[13]', _get('entrada_total') || '');
+  fd.append('submission[14]', _get('entrada_tipo') || '');
+  fd.append('submission[19]', _get('entrada_data') || _get('entrada_parcelas') || '');
+  fd.append('submission[16]', _get('parc_num') || '');
+  fd.append('submission[17]', _get('parc_valor') || '');
+  fd.append('submission[18]', _get('parc_inicio') || '');
   fd.append('submission[20]', new Date().toISOString());
   fd.append('submission[21]', sigData);
 
-  // Attach PDF as base64 to a text field for storage
-  if (pdfBlob) {
-    const reader = new FileReader();
-    reader.readAsDataURL(pdfBlob);
-    await new Promise(resolve => { reader.onloadend = resolve; });
-    // Store PDF filename reference in Jotform
-    fd.append('submission[21]', sigData + '
-
-PDF: ' + fileName);
-  }
-
   try {
-    const res = await fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, { method:'POST', body:fd });
-    const json = await res.json();
+    var res = await fetch('https://api.jotform.com/form/' + FORM_ID + '/submissions?apiKey=' + API_KEY, {method:'POST',body:fd});
+    var json = await res.json();
     console.log('Jotform:', json);
-  } catch(e) {
-    console.error('Erro Jotform:', e);
-  }
+  } catch(e) { console.error('Jotform error:', e); }
 
   document.getElementById('successBox').classList.add('on');
 }
