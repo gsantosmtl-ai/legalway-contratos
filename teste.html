@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><title>Teste</title></head>
+<body style="background:#09152a;color:#c9a84c;font-family:sans-serif;padding:40px;font-size:24px">
+<h1>Teste de Parâmetros</h1>
+<div id="resultado">Carregando...</div>
+<script>
+const p = new URLSearchParams(window.location.search);
+const nome = p.get('nome');
+const email = p.get('email');
+document.getElementById('resultado').innerHTML = 
+  '<p><strong>Nome:</strong> ' + (nome || 'NÃO RECEBIDO') + '</p>' +
+  '<p><strong>Email:</strong> ' + (email || 'NÃO RECEBIDO') + '</p>' +
+  '<p><strong>URL completa:</strong> ' + window.location.href + '</p>';
+</script>
+</body>
+</html>
