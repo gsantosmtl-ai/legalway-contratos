@@ -342,8 +342,6 @@
 
 <script>
 const p = new URLSearchParams(window.location.search);
-console.log('URL params:', window.location.search);
-console.log('nome param:', p.get('nome'));
 
 // ─── HELPERS ─────────────────────────────────────────
 function g(key) { return p.get(key) ? decodeURIComponent(p.get(key)) : null; }
@@ -361,9 +359,26 @@ function fmtUSD(str) {
 }
 
 // ─── CLIENT INFO ──────────────────────────────────────
-['nome','email','telefone','passaporte','nacionalidade','endereco'].forEach(k => fillInfo('ci-' + k, k));
-const cidade = g('cidade');
-if (cidade) document.getElementById('sign-city').textContent = cidade;
+document.addEventListener('DOMContentLoaded', function() {
+  ['nome','email','telefone','passaporte','nacionalidade','endereco'].forEach(k => fillInfo('ci-' + k, k));
+  const cidade = g('cidade');
+  if (cidade) document.getElementById('sign-city').textContent = cidade;
+  
+  // Force fill with direct DOM manipulation as backup
+  const nome = p.get('nome');
+  const email = p.get('email');
+  const telefone = p.get('telefone');
+  const passaporte = p.get('passaporte');
+  const nacionalidade = p.get('nacionalidade');
+  const endereco = p.get('endereco');
+  
+  if (nome) document.getElementById('ci-nome').textContent = decodeURIComponent(nome);
+  if (email) document.getElementById('ci-email').textContent = decodeURIComponent(email);
+  if (telefone) document.getElementById('ci-telefone').textContent = decodeURIComponent(telefone);
+  if (passaporte) document.getElementById('ci-passaporte').textContent = decodeURIComponent(passaporte);
+  if (nacionalidade) document.getElementById('ci-nacionalidade').textContent = decodeURIComponent(nacionalidade);
+  if (endereco) document.getElementById('ci-endereco').textContent = decodeURIComponent(endereco);
+});
 
 // ─── DATE ─────────────────────────────────────────────
 document.getElementById('sign-date').textContent =
