@@ -135,6 +135,15 @@
   }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+// Inline param reader - runs immediately
+(function(){
+  try {
+    var params = new URLSearchParams(window.location.search);
+    window._cp = function(k){ var v=params.get(k); return v?decodeURIComponent(v):''; };
+  } catch(e){}
+})();
+</script>
 </head>
 <body>
 <div class="wrap">
@@ -279,12 +288,12 @@
       <div class="sec-title">Client Identification</div>
       <div class="sec-text" style="margin-bottom:16px"><p>Please review your information below before signing.</p></div>
       <div class="client-grid">
-        <div class="info-item full"><div class="info-lbl">Full Name</div><div class="info-val" id="ci-nome"></div></div>
-        <div class="info-item"><div class="info-lbl">Email</div><div class="info-val" id="ci-email"></div></div>
-        <div class="info-item"><div class="info-lbl">Phone / WhatsApp</div><div class="info-val" id="ci-telefone"></div></div>
-        <div class="info-item"><div class="info-lbl">Passport / ID Document</div><div class="info-val" id="ci-passaporte"></div></div>
-        <div class="info-item"><div class="info-lbl">Nationality</div><div class="info-val" id="ci-nacionalidade"></div></div>
-        <div class="info-item full"><div class="info-lbl">Address</div><div class="info-val" id="ci-endereco"></div></div>
+        <div class="info-item full"><div class="info-lbl">Full Name</div><div class="info-val" id="ci-nome"><script>document.write(window._cp&&window._cp("nome")||"")</script></div></div>
+        <div class="info-item"><div class="info-lbl">Email</div><div class="info-val" id="ci-email"><script>document.write(window._cp&&window._cp("email")||"")</script></div></div>
+        <div class="info-item"><div class="info-lbl">Phone / WhatsApp</div><div class="info-val" id="ci-telefone"><script>document.write(window._cp&&window._cp("telefone")||"")</script></div></div>
+        <div class="info-item"><div class="info-lbl">Passport / ID Document</div><div class="info-val" id="ci-passaporte"><script>document.write(window._cp&&window._cp("passaporte")||"")</script></div></div>
+        <div class="info-item"><div class="info-lbl">Nationality</div><div class="info-val" id="ci-nacionalidade"><script>document.write(window._cp&&window._cp("nacionalidade")||"")</script></div></div>
+        <div class="info-item full"><div class="info-lbl">Address</div><div class="info-val" id="ci-endereco"><script>document.write(window._cp&&window._cp("endereco")||"")</script></div></div>
       </div>
     </div>
 
