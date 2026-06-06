@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Link — Contrato EB2/NIW | LegalWay</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#09152a;--navy-mid:#0f1f3d;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:#9a7830;
+    --white:#fff;--off-white:#f0ead8;--text:#ccc8be;--muted:#7a8fa8;
+    --border:rgba(201,168,76,0.22);--border-strong:rgba(201,168,76,0.52);
+    --danger:rgba(220,80,80,0.7);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--navy);color:var(--text);font-family:'Jost',sans-serif;font-weight:300;min-height:100vh}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 35% at 50% 0,rgba(201,168,76,0.07) 0%,transparent 60%);pointer-events:none}
+
+  .wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:48px 20px 64px}
+
+  .top{text-align:center;margin-bottom:36px;animation:fadeDown .6s ease both}
+  .logo{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:22px}
+  .logo-ring{width:42px;height:42px;border:1.5px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--gold);font-weight:600}
+  .logo-name{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--white);letter-spacing:3px;text-transform:uppercase}
+  .logo-name span{color:var(--gold)}
+  .top-eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+  .top-title{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--white);font-weight:300}
+
+  /* CARD */
+  .card{border:1px solid var(--border);background:rgba(15,31,61,0.5);margin-bottom:4px;animation:fadeUp .7s ease .08s both}
+  .card-head{padding:18px 28px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  .card-icon{width:30px;height:30px;border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--gold);font-size:13px}
+  .card-label{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:500;color:var(--white)}
+  .card-body{padding:20px 28px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .full{grid-column:1/-1}
+
+  .fld{display:flex;flex-direction:column;gap:5px}
+  .flabel{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);font-weight:500}
+  .finput,.fselect{background:rgba(255,255,255,0.04);border:1px solid rgba(201,168,76,0.2);color:var(--white);font-family:'Jost',sans-serif;font-size:14px;font-weight:300;padding:9px 13px;outline:none;transition:border-color .25s,background .25s;width:100%;appearance:none}
+  .finput:focus,.fselect:focus{border-color:var(--gold);background:rgba(201,168,76,0.04)}
+  .finput::placeholder{color:rgba(138,154,181,0.4)}
+  .fselect option{background:#0f1f3d;color:#fff}
+
+  /* ENTRADA SECTION */
+  .entrada-type{display:flex;gap:10px;margin-bottom:4px}
+  .type-btn{flex:1;padding:9px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;text-align:center}
+  .type-btn.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.07)}
+
+  /* PARCELAS DINÂMICAS DA ENTRADA */
+  .parcelas-entrada-wrap{display:none}
+  .parcelas-entrada-wrap.on{display:block}
+  .parcela-row{display:grid;grid-template-columns:auto 1fr 1fr auto;gap:10px;align-items:center;margin-bottom:8px}
+  .parcela-num{font-size:11px;color:var(--gold-dim);letter-spacing:1px;white-space:nowrap;padding-top:2px}
+  .add-parcela-btn{display:flex;align-items:center;gap:7px;background:none;border:1px dashed var(--border-strong);color:var(--gold-dim);font-family:'Jost',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:8px 14px;cursor:pointer;transition:all .2s;margin-top:4px}
+  .add-parcela-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,0.05)}
+  .del-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px;transition:color .2s;line-height:1}
+  .del-btn:hover{color:var(--danger)}
+
+  /* DIVIDER */
+  .divider{grid-column:1/-1;height:1px;background:linear-gradient(90deg,var(--border-strong),transparent);margin:6px 0}
+  .divider-label{grid-column:1/-1;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dim);margin-top:4px}
+
+  /* PREVIEW TOTAL */
+  .preview-box{border:1px solid var(--border-strong);background:rgba(201,168,76,0.04);padding:16px 20px;margin-top:4px;display:none}
+  .preview-box.on{display:block}
+  .preview-title{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:12px;font-weight:500}
+  .preview-line{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--text);padding:4px 0;border-bottom:1px solid rgba(201,168,76,0.08)}
+  .preview-line:last-child{border-bottom:none;margin-top:6px;padding-top:8px}
+  .preview-line span:first-child{color:var(--muted)}
+  .preview-line span:last-child{color:var(--white);font-weight:400}
+  .preview-total{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold-light)!important}
+
+  /* RESULT */
+  .result-card{border:1px solid var(--border-strong);background:rgba(201,168,76,0.04);padding:22px 28px;margin-top:4px;display:none;animation:fadeUp .4s ease both}
+  .result-card.on{display:block}
+  .result-label{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold-dim);margin-bottom:10px;font-weight:500}
+  .link-box{background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:11px 14px;font-size:11.5px;color:var(--off-white);word-break:break-all;line-height:1.65;font-family:monospace;margin-bottom:14px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:'Jost',sans-serif;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:10px 20px;cursor:pointer;border:none;transition:all .25s;text-decoration:none}
+  .btn-gold{background:linear-gradient(135deg,var(--gold-dim),var(--gold));color:var(--navy)}
+  .btn-gold:hover{box-shadow:0 5px 20px rgba(201,168,76,0.3);transform:translateY(-1px)}
+  .btn-outline{background:transparent;border:1px solid var(--border-strong);color:var(--gold)}
+  .btn-outline:hover{background:rgba(201,168,76,0.07);border-color:var(--gold)}
+  .btn-wa{background:#25D366;color:#fff}
+  .btn-wa:hover{background:#1ebe5c;transform:translateY(-1px)}
+
+  .gen-wrap{padding:26px 28px;border:1px solid var(--border);border-top:none;text-align:center;background:rgba(201,168,76,0.02)}
+  .gen-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--gold-dim),var(--gold),var(--gold-light));color:var(--navy);border:none;font-family:'Jost',sans-serif;font-size:13px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;padding:14px 40px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+  .gen-btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,0.18);transform:translateX(-100%);transition:transform .35s}
+  .gen-btn:hover::before{transform:translateX(0)}
+  .gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,0.3)}
+
+  .foot{text-align:center;font-size:11px;color:var(--muted);letter-spacing:1.5px;padding-top:26px;border-top:1px solid var(--border);margin-top:4px}
+
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+  @media(max-width:560px){
+    .card-body{grid-template-columns:1fr}
+    .full{grid-column:1}
+    .parcela-row{grid-template-columns:auto 1fr 1fr auto}
+    .btns{flex-direction:column}
+    .btn{justify-content:center}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="logo">
+      <div class="logo-ring">LW</div>
+      <div class="logo-name">Legal<span>Way</span> Group</div>
+    </div>
+    <div class="top-eyebrow">Uso Interno</div>
+    <div class="top-title">Gerador de Link — Contrato EB2/NIW</div>
+  </div>
+
+  <!-- DADOS DO CLIENTE -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">👤</div>
+      <div class="card-label">Dados do Cliente</div>
+    </div>
+    <div class="card-body">
+      <div class="fld full">
+        <label class="flabel">Nome Completo</label>
+        <input class="finput" id="f-nome" type="text" placeholder="Nome completo do cliente" />
+      </div>
+      <div class="fld">
+        <label class="flabel">E-mail</label>
+        <input class="finput" id="f-email" type="email" placeholder="email@exemplo.com" />
+      </div>
+      <div class="fld">
+        <label class="flabel">Telefone / WhatsApp</label>
+        <input class="finput" id="f-telefone" type="tel" placeholder="+55 (11) 99999-9999" />
+      </div>
+      <div class="fld">
+        <label class="flabel">Passaporte / Documento</label>
+        <input class="finput" id="f-passaporte" type="text" placeholder="Número do passaporte" />
+      </div>
+      <div class="fld">
+        <label class="flabel">Nacionalidade</label>
+        <input class="finput" id="f-nacionalidade" type="text" placeholder="ex: Brasileira" />
+      </div>
+      <div class="fld full">
+        <label class="flabel">Endereço Atual</label>
+        <input class="finput" id="f-endereco" type="text" placeholder="Endereço completo" />
+      </div>
+      <div class="fld">
+        <label class="flabel">Cidade (para assinatura)</label>
+        <input class="finput" id="f-cidade" type="text" placeholder="ex: São Paulo, Brasil" />
+      </div>
+      <div class="fld">
+        <label class="flabel">Método de Pagamento</label>
+        <select class="fselect" id="f-metodo">
+          <option value="">Selecione...</option>
+          <option>Cartão de Crédito</option>
+          <option>Transferência Bancária (Wire)</option>
+          <option>Zelle</option>
+          <option>Pix</option>
+          <option>Cheque</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENTRADA -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">💰</div>
+      <div class="card-label">Entrada</div>
+    </div>
+    <div class="card-body">
+
+      <div class="fld full">
+        <label class="flabel">Valor Total da Entrada (USD)</label>
+        <input class="finput" id="f-entrada-total" type="text" placeholder="ex: 5,000.00" oninput="atualizarPreview()" />
+      </div>
+
+      <div class="full">
+        <label class="flabel" style="margin-bottom:8px;display:block">Forma de pagamento da entrada</label>
+        <div class="entrada-type">
+          <button class="type-btn active" id="btn-avista" onclick="setEntradaTipo('avista')">À Vista</button>
+          <button class="type-btn" id="btn-parcelada" onclick="setEntradaTipo('parcelada')">Parcelada</button>
+        </div>
+      </div>
+
+      <!-- À VISTA: só data -->
+      <div id="avista-wrap" class="fld full">
+        <label class="flabel">Data de Pagamento</label>
+        <input class="finput" id="f-avista-data" type="date" oninput="atualizarPreview()" />
+      </div>
+
+      <!-- PARCELADA: linhas dinâmicas -->
+      <div id="parcelada-wrap" class="parcelas-entrada-wrap full">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <label class="flabel">Parcelas da Entrada</label>
+          <button class="add-parcela-btn" onclick="addParcelaEntrada()">+ Adicionar Parcela</button>
+        </div>
+        <div id="parcelas-entrada-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESTANTE -->
+  <div class="card">
+    <div class="card-head">
+      <div class="card-icon">📅</div>
+      <div class="card-label">Restante do Contrato</div>
+    </div>
+    <div class="card-body">
+      <div class="fld">
+        <label class="flabel">Número de Parcelas</label>
+        <input class="finput" id="f-parc-num" type="number" min="1" placeholder="ex: 30" oninput="atualizarPreview()" />
+      </div>
+      <div class="fld">
+        <label class="flabel">Valor por Parcela (USD)</label>
+        <input class="finput" id="f-parc-valor" type="text" placeholder="ex: 400.00" oninput="atualizarPreview()" />
+      </div>
+      <div class="fld full">
+        <label class="flabel">Data da Primeira Parcela</label>
+        <input class="finput" id="f-parc-inicio" type="date" oninput="atualizarPreview()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- PREVIEW TOTAL -->
+  <div class="preview-box" id="previewBox">
+    <div class="preview-title">Resumo do Contrato</div>
+    <div id="preview-lines"></div>
+  </div>
+
+  <!-- GERAR -->
+  <div class="gen-wrap">
+    <button class="gen-btn" onclick="gerarLink()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Gerar Link do Contrato
+    </button>
+  </div>
+
+  <!-- RESULTADO -->
+  <div class="result-card" id="resultCard">
+    <div class="result-label">Link Gerado</div>
+    <div class="link-box" id="linkBox"></div>
+    <div class="btns">
+      <button class="btn btn-gold" onclick="copiarLink()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Copiar Link
+      </button>
+      <a class="btn btn-wa" id="btnWA" href="#" target="_blank">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        Enviar pelo WhatsApp
+      </a>
+      <a class="btn btn-outline" id="btnPreview" href="#" target="_blank">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Visualizar
+      </a>
+    </div>
+    <div id="copyMsg" style="font-size:12px;color:var(--gold);margin-top:10px;display:none">✓ Link copiado!</div>
+  </div>
+
+  <div class="foot">LEGALWAY GROUP &nbsp;·&nbsp; USO INTERNO &nbsp;·&nbsp; legalway.group</div>
+</div>
+
+<script>
+const BASE_URL = 'https://legalway.group/contrato-eb2niw-legalway.html'; // ← ajuste para o domínio real
+
+// ─── ENTRADA TIPO ────────────────────────────────────
+let entradaTipo = 'avista';
+let parcelasEntrada = []; // [{valor, data}]
+
+function setEntradaTipo(tipo) {
+  entradaTipo = tipo;
+  document.getElementById('btn-avista').classList.toggle('active', tipo === 'avista');
+  document.getElementById('btn-parcelada').classList.toggle('active', tipo === 'parcelada');
+  document.getElementById('avista-wrap').style.display = tipo === 'avista' ? '' : 'none';
+  document.getElementById('parcelada-wrap').classList.toggle('on', tipo === 'parcelada');
+  if (tipo === 'parcelada' && parcelasEntrada.length === 0) addParcelaEntrada();
+  atualizarPreview();
+}
+
+function addParcelaEntrada() {
+  const idx = parcelasEntrada.length;
+  parcelasEntrada.push({ valor: '', data: '' });
+  renderParcelasEntrada();
+}
+
+function removeParcelaEntrada(idx) {
+  parcelasEntrada.splice(idx, 1);
+  renderParcelasEntrada();
+  atualizarPreview();
+}
+
+function renderParcelasEntrada() {
+  const list = document.getElementById('parcelas-entrada-list');
+  list.innerHTML = '';
+  parcelasEntrada.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.className = 'parcela-row';
+    row.innerHTML = `
+      <span class="parcela-num">${i + 1}ª</span>
+      <div class="fld">
+        <input class="finput" type="text" placeholder="USD 0.00" value="${p.valor}"
+          oninput="parcelasEntrada[${i}].valor=this.value;atualizarPreview()" />
+      </div>
+      <div class="fld">
+        <input class="finput" type="date" value="${p.data}"
+          oninput="parcelasEntrada[${i}].data=this.value;atualizarPreview()" />
+      </div>
+      ${parcelasEntrada.length > 1 ? `<button class="del-btn" onclick="removeParcelaEntrada(${i})">×</button>` : '<span></span>'}
+    `;
+    list.appendChild(row);
+  });
+}
+
+// ─── PREVIEW ─────────────────────────────────────────
+function fmtDate(val) {
+  if (!val) return '—';
+  const d = new Date(val + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+function fmtUSD(val) {
+  const n = parseFloat(val.toString().replace(/,/g, ''));
+  if (isNaN(n)) return '—';
+  return 'USD ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function atualizarPreview() {
+  const entTotal = document.getElementById('f-entrada-total').value;
+  const parcNum = document.getElementById('f-parc-num').value;
+  const parcValor = document.getElementById('f-parc-valor').value;
+  const parcInicio = document.getElementById('f-parc-inicio').value;
+
+  if (!entTotal && !parcNum) {
+    document.getElementById('previewBox').classList.remove('on');
+    return;
+  }
+
+  let lines = [];
+
+  // Entrada
+  if (entTotal) {
+    lines.push({ label: 'Valor da Entrada', val: fmtUSD(entTotal) });
+    if (entradaTipo === 'avista') {
+      const d = document.getElementById('f-avista-data').value;
+      lines.push({ label: 'Pagamento da Entrada', val: d ? fmtDate(d) : '—' });
+    } else {
+      parcelasEntrada.forEach((p, i) => {
+        lines.push({ label: `${i + 1}ª Parcela da Entrada`, val: `${fmtUSD(p.valor)} — ${fmtDate(p.data)}` });
+      });
+    }
+  }
+
+  // Restante
+  if (parcNum && parcValor) {
+    lines.push({ label: `Restante: ${parcNum}x de`, val: fmtUSD(parcValor) });
+    if (parcInicio) {
+      lines.push({ label: '1ª Parcela em', val: fmtDate(parcInicio) });
+
+      // Calc total
+      const ent = parseFloat(entTotal.replace(/,/g, '')) || 0;
+      const parc = parseFloat(parcValor.replace(/,/g, '')) || 0;
+      const num = parseInt(parcNum) || 0;
+      const total = ent + (parc * num);
+      lines.push({ label: 'Total do Contrato', val: fmtUSD(total.toString()), total: true });
+    }
+  }
+
+  const box = document.getElementById('previewBox');
+  const linesEl = document.getElementById('preview-lines');
+  linesEl.innerHTML = lines.map(l =>
+    `<div class="preview-line"><span>${l.label}</span><span class="${l.total ? 'preview-total' : ''}">${l.val}</span></div>`
+  ).join('');
+  box.classList.add('on');
+}
+
+// ─── GERAR LINK ──────────────────────────────────────
+let linkGerado = '';
+
+function gerarLink() {
+  const nome = document.getElementById('f-nome').value.trim();
+  if (!nome) { alert('Informe o nome do cliente.'); return; }
+
+  const p = new URLSearchParams();
+
+  // Cliente
+  const campos = ['nome','email','telefone','passaporte','nacionalidade','endereco','cidade'];
+  campos.forEach(c => {
+    const v = document.getElementById('f-' + c)?.value?.trim();
+    if (v) p.set(c, v);
+  });
+  const metodo = document.getElementById('f-metodo').value;
+  if (metodo) p.set('metodo', metodo);
+
+  // Entrada
+  const entTotal = document.getElementById('f-entrada-total').value.trim();
+  if (entTotal) p.set('entrada_total', entTotal);
+  p.set('entrada_tipo', entradaTipo);
+
+  if (entradaTipo === 'avista') {
+    const d = document.getElementById('f-avista-data').value;
+    if (d) p.set('entrada_data', fmtDate(d));
+  } else {
+    // Serializa parcelas como JSON
+    const parcs = parcelasEntrada.map(px => ({
+      v: px.valor,
+      d: px.data ? fmtDate(px.data) : ''
+    }));
+    p.set('entrada_parcelas', JSON.stringify(parcs));
+  }
+
+  // Restante
+  const parcNum   = document.getElementById('f-parc-num').value.trim();
+  const parcValor = document.getElementById('f-parc-valor').value.trim();
+  const parcInicio= document.getElementById('f-parc-inicio').value;
+  if (parcNum)    p.set('parc_num', parcNum);
+  if (parcValor)  p.set('parc_valor', parcValor);
+  if (parcInicio) p.set('parc_inicio', fmtDate(parcInicio));
+
+  linkGerado = `${BASE_URL}?${p.toString()}`;
+
+  document.getElementById('linkBox').textContent = linkGerado;
+  document.getElementById('btnPreview').href = linkGerado;
+
+  const primeiroNome = nome.split(' ')[0];
+  const msg = `Olá, ${primeiroNome}! 😊\n\nSeu contrato de serviços EB-2/NIW com a LegalWay Group está pronto para assinatura.\n\nPor favor, acesse o link abaixo, revise as condições e assine digitalmente:\n\n${linkGerado}\n\nQualquer dúvida, estamos à disposição! 🇺🇸`;
+  const waNum = document.getElementById('f-telefone').value.replace(/\D/g, '');
+  document.getElementById('btnWA').href = waNum
+    ? `https://wa.me/${waNum}?text=${encodeURIComponent(msg)}`
+    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+  document.getElementById('resultCard').classList.add('on');
+  document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  document.getElementById('copyMsg').style.display = 'none';
+}
+
+function copiarLink() {
+  if (!linkGerado) return;
+  navigator.clipboard.writeText(linkGerado).then(() => {
+    const msg = document.getElementById('copyMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 2500);
+  });
+}
+
+// Init
+setEntradaTipo('avista');
+</script>
+</body>
+</html>
