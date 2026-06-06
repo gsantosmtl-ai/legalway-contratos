@@ -457,6 +457,35 @@ function buildPayment() {
   wrap.innerHTML = html || '<p style="font-size:14px;color:var(--muted)">Payment conditions not specified.</p>';
 }
 
+// ─── SIGNED MODE ─────────────────────────────────────
+// If opened in signed mode (from email link), show as read-only signed document
+if (_params.get('signed') === '1') {
+  window.addEventListener('load', function() {
+    // Hide submit button
+    var submitWrap = document.querySelector('.submit-wrap');
+    if (submitWrap) submitWrap.style.display = 'none';
+    
+    // Show signed banner
+    var banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(76,175,125,0.15);border:1px solid rgba(76,175,125,0.5);color:#4caf7d;text-align:center;padding:16px;font-family:Jost,sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;';
+    banner.innerHTML = '✓ &nbsp; Contract Signed — ' + (_params.get('sig_date') || '') + ' &nbsp; | &nbsp; <button onclick="window.print()" style="background:linear-gradient(135deg,#9a7830,#c9a84c);color:#09152a;border:none;padding:8px 20px;font-family:Jost,sans-serif;font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-left:8px;">↓ Download PDF</button>';
+    document.querySelector('.wrap').insertBefore(banner, document.querySelector('.hdr'));
+    
+    // Show signature field as signed
+    var sigSection = document.getElementById('sig');
+    if (sigSection) {
+      var signedMsg = document.createElement('div');
+      signedMsg.style.cssText = 'border:1px solid rgba(76,175,125,0.5);background:rgba(76,175,125,0.05);padding:20px;text-align:center;color:#4caf7d;font-family:Jost,sans-serif;font-size:13px;';
+      signedMsg.textContent = '✓ Signed digitally by ' + (_params.get('nome') || 'Client');
+      sigSection.parentNode.replaceChild(signedMsg, sigSection);
+    }
+    
+    // Hide agree checkbox
+    var agreeWrap = document.getElementById('agreeWrap');
+    if (agreeWrap) agreeWrap.style.display = 'none';
+  });
+}
+
 // ─── INIT ────────────────────────────────────────────
 window.onload = function() {
   fillField('ci-nome',         'nome');
@@ -594,13 +623,22 @@ async function enviar() {
     if (_get('parc_num') && _get('parc_valor')) payInfo += '\nMonthly: ' + _get('parc_num') + 'x of USD ' + _get('parc_valor');
     if (_get('parc_inicio')) payInfo += ' starting ' + _get('parc_inicio');
 
+    // Compress signature for URL
+    var sigCompressed = sigData.replace('data:image/png;base64,', '');
+    // Store signature in sessionStorage temporarily and use a short token
+    var sigToken = Date.now().toString(36);
+    try { sessionStorage.setItem('sig_' + sigToken, sigData); } catch(e){}
+    
+    // Build contract link with signed=true marker
+    var contractUrl = window.location.href + '&signed=1&sig_date=' + encodeURIComponent(new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}));
+
     await emailjs.send('service_cc4z85r', 'template_pwwxnym', {
       client_name:   _get('nome') || '—',
       client_email:  _get('email') || '—',
       client_phone:  _get('telefone') || '—',
       sign_date:     new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
       payment_info:  payInfo || '—',
-      contract_link: window.location.href,
+      contract_link: contractUrl,
       to_email:      'legalwayeau@gmail.com',
       reply_to:      _get('email') || 'legalwayeau@gmail.com',
     });
@@ -656,13 +694,22 @@ async function enviar() {
     if (_get('parc_num') && _get('parc_valor')) payInfo += '\nMonthly: ' + _get('parc_num') + 'x of USD ' + _get('parc_valor');
     if (_get('parc_inicio')) payInfo += ' starting ' + _get('parc_inicio');
 
+    // Compress signature for URL
+    var sigCompressed = sigData.replace('data:image/png;base64,', '');
+    // Store signature in sessionStorage temporarily and use a short token
+    var sigToken = Date.now().toString(36);
+    try { sessionStorage.setItem('sig_' + sigToken, sigData); } catch(e){}
+    
+    // Build contract link with signed=true marker
+    var contractUrl = window.location.href + '&signed=1&sig_date=' + encodeURIComponent(new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}));
+
     await emailjs.send('service_cc4z85r', 'template_pwwxnym', {
       client_name:   _get('nome') || '—',
       client_email:  _get('email') || '—',
       client_phone:  _get('telefone') || '—',
       sign_date:     new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
       payment_info:  payInfo || '—',
-      contract_link: window.location.href,
+      contract_link: contractUrl,
       to_email:      'legalwayeau@gmail.com',
       reply_to:      _get('email') || 'legalwayeau@gmail.com',
     });
@@ -948,13 +995,22 @@ async function enviar() {
     if (_get('parc_num') && _get('parc_valor')) payInfo += '\nMonthly: ' + _get('parc_num') + 'x of USD ' + _get('parc_valor');
     if (_get('parc_inicio')) payInfo += ' starting ' + _get('parc_inicio');
 
+    // Compress signature for URL
+    var sigCompressed = sigData.replace('data:image/png;base64,', '');
+    // Store signature in sessionStorage temporarily and use a short token
+    var sigToken = Date.now().toString(36);
+    try { sessionStorage.setItem('sig_' + sigToken, sigData); } catch(e){}
+    
+    // Build contract link with signed=true marker
+    var contractUrl = window.location.href + '&signed=1&sig_date=' + encodeURIComponent(new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}));
+
     await emailjs.send('service_cc4z85r', 'template_pwwxnym', {
       client_name:   _get('nome') || '—',
       client_email:  _get('email') || '—',
       client_phone:  _get('telefone') || '—',
       sign_date:     new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
       payment_info:  payInfo || '—',
-      contract_link: window.location.href,
+      contract_link: contractUrl,
       to_email:      'legalwayeau@gmail.com',
       reply_to:      _get('email') || 'legalwayeau@gmail.com',
     });
