@@ -342,6 +342,8 @@
 
 <script>
 const p = new URLSearchParams(window.location.search);
+console.log('URL params:', window.location.search);
+console.log('nome param:', p.get('nome'));
 
 // ─── HELPERS ─────────────────────────────────────────
 function g(key) { return p.get(key) ? decodeURIComponent(p.get(key)) : null; }
