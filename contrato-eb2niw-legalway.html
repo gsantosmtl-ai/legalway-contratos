@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EB-2/NIW Services Agreement | LegalWay Group</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 
   :root{
@@ -528,6 +528,275 @@ async function enviar() {
 
     sigImg.parentNode.replaceChild(canvas, sigImg);
     document.querySelector('.submit-wrap').style.display = '';
+  } catch(e) { console.error('PDF error:', e); }
+
+  // Send to Jotform
+  var FORM_ID = '261565529626062';
+  var API_KEY = '767f2d3c1c55a7c47aba63accdb2f95f';
+  var fd = new FormData();
+  fd.append('submission[5]',  _get('nome') || '');
+  fd.append('submission[6]',  _get('email') || '');
+  fd.append('submission[7]',  _get('telefone') || '');
+  fd.append('submission[22]', _get('passaporte') || '');
+  fd.append('submission[10]', _get('nacionalidade') || '');
+  fd.append('submission[11]', _get('endereco') || '');
+  fd.append('submission[12]', _get('metodo') || '');
+  fd.append('submission[13]', _get('entrada_total') || '');
+  fd.append('submission[14]', _get('entrada_tipo') || '');
+  fd.append('submission[19]', _get('entrada_data') || _get('entrada_parcelas') || '');
+  fd.append('submission[16]', _get('parc_num') || '');
+  fd.append('submission[17]', _get('parc_valor') || '');
+  fd.append('submission[18]', _get('parc_inicio') || '');
+  fd.append('submission[20]', new Date().toISOString());
+  fd.append('submission[21]', sigData);
+
+  try {
+    var res = await fetch('https://api.jotform.com/form/' + FORM_ID + '/submissions?apiKey=' + API_KEY, {method:'POST',body:fd});
+    var json = await res.json();
+    console.log('Jotform:', json);
+  } catch(e) { console.error('Jotform error:', e); }
+
+  document.getElementById('successBox').classList.add('on');
+}
+</script>
+</body>
+</html  // Generate PDF using jsPDF direct text
+  try {
+    var clientName = _get('nome') || 'client';
+    var fileName = 'LegalWay_EB2NIW_' + clientName.replace(/[^a-zA-Z0-9]/g,'_') + '_' + new Date().toISOString().slice(0,10) + '.pdf';
+    var sigImg = document.createElement('img');
+    sigImg.src = sigData;
+    canvas.parentNode.replaceChild(sigImg, canvas);
+    
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+    var W = 210, H = 297, margin = 20, lineH = 6, y = margin;
+    var maxW = W - margin * 2;
+
+    function addPage() { doc.addPage(); y = margin; }
+    function checkY(needed) { if (y + needed > H - margin) addPage(); }
+
+    function drawHeader() {
+      // Navy header bar
+      doc.setFillColor(9, 21, 42);
+      doc.rect(0, 0, W, 45, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.setTextColor(201, 168, 76);
+      doc.text('LEGALWAY GROUP', W/2, 15, {align:'center'});
+      doc.setFontSize(9);
+      doc.setTextColor(180, 180, 180);
+      doc.text('EB-2/NIW SERVICES AGREEMENT', W/2, 22, {align:'center'});
+      doc.setFontSize(8);
+      doc.text('Windermere, Florida  ·  legalway.group', W/2, 29, {align:'center'});
+      // Gold line
+      doc.setDrawColor(201, 168, 76);
+      doc.setLineWidth(0.5);
+      doc.line(margin, 38, W - margin, 38);
+      y = 52;
+    }
+
+    function sectionTitle(num, title) {
+      checkY(14);
+      doc.setFillColor(245, 240, 232);
+      doc.rect(margin, y-4, maxW, 10, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(154, 120, 48);
+      doc.text(num, margin + 2, y + 2);
+      doc.setTextColor(26, 26, 46);
+      doc.text(title, margin + 14, y + 2);
+      y += 10;
+    }
+
+    function bodyText(text, bold) {
+      doc.setFont('helvetica', bold ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 80);
+      var lines = doc.splitTextToSize(text, maxW);
+      checkY(lines.length * lineH);
+      doc.text(lines, margin, y);
+      y += lines.length * lineH + 2;
+    }
+
+    function bulletText(text) {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(60, 60, 80);
+      var lines = doc.splitTextToSize(text, maxW - 8);
+      checkY(lines.length * lineH);
+      doc.setTextColor(201, 168, 76);
+      doc.text('–', margin + 2, y);
+      doc.setTextColor(60, 60, 80);
+      doc.text(lines, margin + 8, y);
+      y += lines.length * lineH + 1;
+    }
+
+    function payRow(label, value, accent) {
+      checkY(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.setTextColor(120, 120, 140);
+      doc.text(label, margin + 4, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(accent ? 154 : 26, accent ? 120 : 26, accent ? 48 : 46);
+      doc.text(value, W - margin - 4, y, {align:'right'});
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.2);
+      doc.line(margin, y + 2, W - margin, y + 2);
+      y += 9;
+    }
+
+    function space(n) { y += n || 4; }
+    function divider() {
+      checkY(4);
+      doc.setDrawColor(201, 168, 76);
+      doc.setLineWidth(0.3);
+      doc.line(margin, y, W - margin, y);
+      y += 5;
+    }
+
+    // ── DRAW ──
+    drawHeader();
+
+    // Parties
+    sectionTitle('01', 'The Parties');
+    bodyText('SERVICE PROVIDER: LegalWay Group, Windermere, Florida, USA — peterson.financeiro@legalway.group', false);
+    space(2);
+    bodyText('CLIENT: ' + (_get('nome')||'—') + '  |  ' + (_get('email')||'—') + '  |  ' + (_get('telefone')||'—'), false);
+    if (_get('passaporte')) bodyText('Passport/ID: ' + _get('passaporte') + '  |  Nationality: ' + (_get('nacionalidade')||'—'), false);
+    if (_get('endereco')) bodyText('Address: ' + _get('endereco'), false);
+    space(4);
+
+    // Scope
+    sectionTitle('02', 'Scope of Services');
+    bodyText('LegalWay Group provides administrative support, document preparation, strategic case organization, and operational assistance for the EB-2 NIW petition. The Service Provider does not provide legal services, legal advice, or legal representation.', false);
+    space(2);
+    bodyText('Included Services:', true);
+    ['Initial case strategy review and CV evaluation','Evidence checklist, organization and document review','Guidance on recommendation letters','Petition package organization and administrative support','Business plan preparation','Shipping expenses and case assembly coordination'].forEach(bulletText);
+    space(2);
+    bodyText('Excluded (unless agreed in writing): USCIS filing fees, attorney fees, legal representation, translations, credential evaluations, appeals, litigation.', false);
+    space(4);
+
+    // Payment
+    sectionTitle('03', 'Fees & Payment Schedule');
+    if (_get('metodo')) payRow('Payment Method', _get('metodo'), false);
+    if (_get('entrada_total')) {
+      payRow('Down Payment', 'USD ' + _get('entrada_total'), true);
+      if (_get('entrada_tipo') === 'avista' && _get('entrada_data')) {
+        payRow('Payment Date', _get('entrada_data'), false);
+      }
+    }
+    if (_get('parc_num') && _get('parc_valor')) {
+      payRow('Monthly Installments', _get('parc_num') + 'x of USD ' + _get('parc_valor'), true);
+      if (_get('parc_inicio')) payRow('First Installment', _get('parc_inicio'), false);
+    }
+    // Total
+    var ent = parseFloat((_get('entrada_total')||'0').replace(/,/g,'')) || 0;
+    var pv  = parseFloat((_get('parc_valor')||'0').replace(/,/g,'')) || 0;
+    var pn  = parseInt(_get('parc_num')||'0') || 0;
+    if (ent > 0 || pv > 0) {
+      var total = ent + (pv * pn);
+      checkY(12);
+      doc.setFillColor(245, 240, 232);
+      doc.rect(margin, y-4, maxW, 12, 'F');
+      doc.setDrawColor(201, 168, 76);
+      doc.setLineWidth(0.5);
+      doc.rect(margin, y-4, maxW, 12);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(154, 120, 48);
+      doc.text('TOTAL CONTRACT VALUE', margin + 4, y + 2);
+      doc.setFontSize(13);
+      doc.text('USD ' + total.toLocaleString('en-US',{minimumFractionDigits:2}), W - margin - 4, y + 3, {align:'right'});
+      y += 16;
+    }
+    space(4);
+
+    // Key Terms
+    sectionTitle('04-07', 'Key Terms & Conditions');
+    bodyText('Responsibilities: The Client is solely responsible for the accuracy of all information provided. Case preparation depends substantially on Client cooperation. Inactivity over 30 days may pause services; over 90 days may result in case archiving.', false);
+    space(2);
+    bodyText('No Approval Guarantee: Approval of the EB-2/NIW petition is entirely discretionary and determined solely by USCIS. No immigration outcome is guaranteed. Total liability shall not exceed the amount paid by the Client.', false);
+    space(2);
+    bodyText('Cancellation: Previously paid amounts are non-refundable due to work already initiated. Future scheduled payments cease upon cancellation. Contact the Service Provider before initiating any dispute or chargeback.', false);
+    space(2);
+    bodyText('Legal Disclaimer: "I AM NOT AN ATTORNEY LICENSED TO PRACTICE LAW AND MAY NOT PROVIDE LEGAL ADVICE OR LEGAL REPRESENTATION." LegalWay Group does not represent clients before USCIS.', false);
+    space(2);
+    bodyText('Governing Law: Disputes resolved through binding arbitration in Orlando, Florida. Electronic signatures valid under E-SIGN Act and UETA.', false);
+    space(4);
+
+    // Client ID
+    sectionTitle('08', 'Client Identification');
+    var fields = [
+      ['Full Name', _get('nome')],
+      ['Email', _get('email')],
+      ['Phone / WhatsApp', _get('telefone')],
+      ['Passport / ID', _get('passaporte')],
+      ['Nationality', _get('nacionalidade')],
+      ['Address', _get('endereco')]
+    ];
+    fields.forEach(function(f) {
+      if (!f[1]) return;
+      checkY(8);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(154, 120, 48);
+      doc.text(f[0].toUpperCase(), margin + 2, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(26, 26, 46);
+      var lines = doc.splitTextToSize(f[1], maxW - 4);
+      doc.text(lines, margin + 2, y + 5);
+      y += 5 + lines.length * 5 + 3;
+    });
+    space(4);
+
+    // Signature
+    sectionTitle('09', 'Digital Signature');
+    bodyText('The Client declares having read and fully understood this Agreement and agrees to all provisions.', false);
+    space(3);
+    checkY(20);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(154, 120, 48);
+    doc.text('SIGNATURE', margin + 2, y);
+    doc.setDrawColor(201, 168, 76);
+    doc.setLineWidth(0.5);
+    doc.rect(margin, y + 2, maxW, 35);
+    // Add signature image
+    try {
+      doc.addImage(sigData, 'PNG', margin + 2, y + 3, maxW - 4, 33);
+    } catch(e) {}
+    y += 42;
+    space(4);
+
+    // Date and location
+    checkY(16);
+    var dateStr = new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'});
+    var cityStr = _get('cidade') || 'Windermere, Florida';
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(60, 60, 80);
+    doc.text('Date: ' + dateStr, margin, y);
+    doc.text('Location: ' + cityStr, margin + 80, y);
+    y += 8;
+    divider();
+
+    // Footer on all pages
+    var totalPages = doc.internal.getNumberOfPages();
+    for (var i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 160);
+      doc.text('LegalWay Group  ·  Windermere, Florida  ·  legalway.group  ·  Confidential', W/2, H - 8, {align:'center'});
+      doc.text('Page ' + i + ' of ' + totalPages, W - margin, H - 8, {align:'right'});
+    }
+
+    doc.save(fileName);
+    sigImg.parentNode.replaceChild(canvas, sigImg);
   } catch(e) { console.error('PDF error:', e); }
 
   // Send to Jotform
