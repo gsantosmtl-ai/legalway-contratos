@@ -568,7 +568,7 @@ async function enviar() {
     sigImg.src = sigData;
     canvas.parentNode.replaceChild(sigImg, canvas);
     
-    var { jsPDF } = window.jspdf;
+    var jsPDF = window.jspdf ? window.jspdf.jsPDF : window.jsPDF;
     var doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
     var W = 210, H = 297, margin = 20, lineH = 6, y = margin;
     var maxW = W - margin * 2;
