@@ -595,13 +595,14 @@ async function enviar() {
     if (_get('parc_inicio')) payInfo += ' starting ' + _get('parc_inicio');
 
     await emailjs.send('service_cc4z85r', 'template_pwwxnym', {
-      client_name:  _get('nome') || '—',
-      client_email: _get('email') || '—',
-      client_phone: _get('telefone') || '—',
-      sign_date:    new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
-      payment_info: payInfo || '—',
-      to_email:     'legalwayeau@gmail.com',
-      reply_to:     _get('email') || 'legalwayeau@gmail.com',
+      client_name:   _get('nome') || '—',
+      client_email:  _get('email') || '—',
+      client_phone:  _get('telefone') || '—',
+      sign_date:     new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
+      payment_info:  payInfo || '—',
+      contract_link: window.location.href,
+      to_email:      'legalwayeau@gmail.com',
+      reply_to:      _get('email') || 'legalwayeau@gmail.com',
     });
     console.log('Email sent!');
   } catch(e) {
@@ -656,13 +657,14 @@ async function enviar() {
     if (_get('parc_inicio')) payInfo += ' starting ' + _get('parc_inicio');
 
     await emailjs.send('service_cc4z85r', 'template_pwwxnym', {
-      client_name:  _get('nome') || '—',
-      client_email: _get('email') || '—',
-      client_phone: _get('telefone') || '—',
-      sign_date:    new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
-      payment_info: payInfo || '—',
-      to_email:     'legalwayeau@gmail.com',
-      reply_to:     _get('email') || 'legalwayeau@gmail.com',
+      client_name:   _get('nome') || '—',
+      client_email:  _get('email') || '—',
+      client_phone:  _get('telefone') || '—',
+      sign_date:     new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
+      payment_info:  payInfo || '—',
+      contract_link: window.location.href,
+      to_email:      'legalwayeau@gmail.com',
+      reply_to:      _get('email') || 'legalwayeau@gmail.com',
     });
     console.log('Email sent!');
   } catch(e) {
@@ -947,13 +949,14 @@ async function enviar() {
     if (_get('parc_inicio')) payInfo += ' starting ' + _get('parc_inicio');
 
     await emailjs.send('service_cc4z85r', 'template_pwwxnym', {
-      client_name:  _get('nome') || '—',
-      client_email: _get('email') || '—',
-      client_phone: _get('telefone') || '—',
-      sign_date:    new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
-      payment_info: payInfo || '—',
-      to_email:     'legalwayeau@gmail.com',
-      reply_to:     _get('email') || 'legalwayeau@gmail.com',
+      client_name:   _get('nome') || '—',
+      client_email:  _get('email') || '—',
+      client_phone:  _get('telefone') || '—',
+      sign_date:     new Date().toLocaleDateString('en-US', {day:'2-digit', month:'long', year:'numeric'}),
+      payment_info:  payInfo || '—',
+      contract_link: window.location.href,
+      to_email:      'legalwayeau@gmail.com',
+      reply_to:      _get('email') || 'legalwayeau@gmail.com',
     });
     console.log('Email sent!');
   } catch(e) {
