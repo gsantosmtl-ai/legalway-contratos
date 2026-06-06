@@ -134,6 +134,7 @@
     .pay-row{flex-direction:column;gap:4px}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -486,10 +487,53 @@ async function enviar() {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.innerHTML = '⏳ &nbsp;Enviando...';
+  btn.innerHTML = '⏳ &nbsp;Generating PDF & Sending...';
 
   const sigData = canvas.toDataURL('image/png');
 
+  // ─── STEP 1: Generate PDF ───────────────────────────
+  // Replace canvas with image for PDF rendering
+  const sigImg = document.createElement('img');
+  sigImg.src = sigData;
+  sigImg.style.cssText = 'width:100%;height:160px;border:1px solid rgba(201,168,76,0.5);display:block;';
+  canvas.parentNode.replaceChild(sigImg, canvas);
+
+  // Hide submit section for PDF
+  document.querySelector('.submit-wrap').style.display = 'none';
+  document.getElementById('successBox').style.display = 'none';
+
+  const element = document.querySelector('.wrap');
+  const clientName = g('nome') || 'client';
+  const fileName = `LegalWay_EB2NIW_${clientName.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+
+  const opt = {
+    margin: [8, 8, 8, 8],
+    filename: fileName,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#09152a',
+      logging: false,
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  let pdfBlob;
+  try {
+    pdfBlob = await html2pdf().set(opt).from(element).outputPdf('blob');
+    // Also trigger download for client
+    html2pdf().set(opt).from(element).save();
+  } catch(err) {
+    console.error('PDF error:', err);
+  }
+
+  // Restore canvas
+  sigImg.parentNode.replaceChild(canvas, sigImg);
+  document.querySelector('.submit-wrap').style.display = '';
+
+  // ─── STEP 2: Send to Jotform ────────────────────────
   const FORM_ID = '261565529626062';
   const API_KEY = '767f2d3c1c55a7c47aba63accdb2f95f';
 
@@ -509,6 +553,17 @@ async function enviar() {
   fd.append('submission[18]', g('parc_inicio') || '');
   fd.append('submission[20]', new Date().toISOString());
   fd.append('submission[21]', sigData);
+
+  // Attach PDF as base64 to a text field for storage
+  if (pdfBlob) {
+    const reader = new FileReader();
+    reader.readAsDataURL(pdfBlob);
+    await new Promise(resolve => { reader.onloadend = resolve; });
+    // Store PDF filename reference in Jotform
+    fd.append('submission[21]', sigData + '
+
+PDF: ' + fileName);
+  }
 
   try {
     const res = await fetch(`https://api.jotform.com/form/${FORM_ID}/submissions?apiKey=${API_KEY}`, { method:'POST', body:fd });
